@@ -1,0 +1,39 @@
+# Rustfmt configuration
+# https://rust-lang.github.io/rustfmt/
+
+# Maximum width of each line
+max_width = 100
+
+# Use 4 spaces for indentation
+tab_spaces = 4
+
+# Edition
+edition = "2021"
+
+# Formatting options
+use_field_init_shorthand = true
+use_try_shorthand = true
+
+# Imports
+imports_granularity = "Crate"
+group_imports = "StdExternalCrate"
+
+# Comments
+wrap_comments = false
+normalize_comments = false
+
+# Chains
+chain_width = 60
+
+# Match
+match_arm_blocks = true
+match_block_trailing_comma = true
+
+# Structs
+struct_lit_single_line = true
+
+# Functions
+fn_args_layout = "Tall"
+
+# Where
+where_single_line = false

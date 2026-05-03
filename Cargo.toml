@@ -1,0 +1,67 @@
+[package]
+name = "ghostkey"
+version = "0.1.0"
+edition = "2021"
+description = "A developer-first credential management system"
+authors = ["Your Name <your.email@example.com>"]
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/yourusername/ghostkey"
+keywords = ["credential", "password", "security", "cli", "developer-tools"]
+categories = ["command-line-utilities", "cryptography"]
+
+[[bin]]
+name = "ghostkey"
+path = "src/main.rs"
+
+[dependencies]
+# CLI
+clap = { version = "4.4", features = ["derive"] }
+clap_complete = "4.4"
+rpassword = "7.2"
+
+# Cryptography
+aes-gcm = "0.10"
+argon2 = "0.5"
+rand = "0.8"
+sha2 = "0.10"
+
+# Security
+zeroize = { version = "1.7", features = ["derive"] }
+secrecy = "0.8"
+subtle = "2.5"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# Base64
+base64 = "0.21"
+
+# Clipboard (Windows)
+[target.'cfg(windows)'.dependencies]
+clipboard-win = "5"
+
+# UUID
+uuid = { version = "1.5", features = ["v4", "serde"] }
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# File handling
+dirs = "5.0"
+tempfile = "3.8"
+
+[dev-dependencies]
+assert_cmd = "2.0"
+predicates = "3.0"
+tempfile = "3.8"
+criterion = "0.5"
+
+[[bench]]
+name = "crypto_bench"
+harness = false

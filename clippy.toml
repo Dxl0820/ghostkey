@@ -1,0 +1,37 @@
+# Clippy configuration
+# https://doc.rust-lang.org/clippy/configuration.html
+
+# Cognitive complexity threshold
+cognitive-complexity-threshold = 30
+
+# Cyclomatic complexity threshold
+cyclomatic-complexity-threshold = 25
+
+# Maximum lines in a single function
+too-many-lines-threshold = 200
+
+# Maximum function arguments
+too-many-arguments-threshold = 7
+
+# Type complexity threshold
+type-complexity-threshold = 250
+
+# Maximum number of bounds on a type param
+max-trait-bounds = 3
+
+# Warn on wildcard imports
+warn-on-all-wildcard-imports = true
+
+# Allow certain lints
+allow = [
+    "clippy::module_name_repetitions",
+    "clippy::must_use_candidate",
+    "clippy::missing_errors_doc",
+]
+
+# Deny these lints
+deny = [
+    "clippy::all",
+    "clippy::pedantic",
+    "clippy::nursery",
+]

@@ -1,0 +1,15 @@
+/target
+*.tmp
+*.enc
+*.meta
+ghostkey.toml
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
