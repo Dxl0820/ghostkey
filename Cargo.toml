@@ -56,6 +56,15 @@ anyhow = "1.0"
 dirs = "5.0"
 tempfile = "3.8"
 
+# API server
+axum = "0.7"
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors", "trace"] }
+tokio = { version = "1", features = ["full"] }
+
+# Browser
+open = "5.0"
+
 [dev-dependencies]
 assert_cmd = "2.0"
 predicates = "3.0"

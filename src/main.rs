@@ -1,3 +1,4 @@
+mod api;
 mod cli;
 mod config;
 mod error;
@@ -10,9 +11,9 @@ mod tests;
 
 use clap::Parser;
 use cli::Cli;
-use error::Result;
 
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> error::Result<()> {
     let cli = Cli::parse();
-    cli.execute()
+    cli.execute().await
 }

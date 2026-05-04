@@ -4,9 +4,9 @@ use crate::error::Result;
 pub fn copy_to_clipboard(text: &str) -> Result<()> {
     use clipboard_win::{Clipboard, Setter, formats::Unicode};
     let _clipboard = Clipboard::new()
-        .map_err(|e| crate::error::Error::Other(format!("Clipboard error: {:?}", e)))?;
+        .map_err(|e| crate::error::Error::ConfigError(format!("Clipboard error: {:?}", e)))?;
     Unicode.write_clipboard(&text.to_string())
-        .map_err(|e| crate::error::Error::Other(format!("Clipboard write error: {:?}", e)))?;
+        .map_err(|e| crate::error::Error::ConfigError(format!("Clipboard write error: {:?}", e)))?;
     Ok(())
 }
 
@@ -35,7 +35,7 @@ pub fn copy_to_clipboard(text: &str) -> Result<()> {
 
 #[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
 pub fn copy_to_clipboard(_text: &str) -> Result<()> {
-    Err(crate::error::Error::Other(
+    Err(crate::error::Error::ConfigError(
         "Clipboard not supported on this platform".to_string()
     ))
 }

@@ -4,6 +4,12 @@
 *.meta
 ghostkey.toml
 
+# Web UI
+web/node_modules/
+web/.next/
+web/out/
+web/.env.local
+
 # IDE
 .idea/
 .vscode/

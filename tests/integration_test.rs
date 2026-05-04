@@ -1,9 +1,8 @@
-use ghostkey::vault::Vault;
-use ghostkey::models::CredentialType;
+// Integration tests require the crate to be a library.
+// Since GhostKey is a binary crate, integration tests are in src/tests/.
+// This file is kept as a placeholder.
 
 #[test]
-fn test_full_workflow() {
-    // This test requires interactive input, so we'll skip it for now
-    // In a real test, we'd mock the password input
+fn placeholder() {
     assert!(true);
 }

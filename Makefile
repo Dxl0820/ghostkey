@@ -53,7 +53,13 @@ coverage-ci:
 
 # Development
 dev:
-	cargo watch -x run
+	cargo run -- dev
+
+dev-api:
+	cargo run -- dev --no-open
+
+dev-web:
+	cd web && npm run dev
 
 dev-test:
 	cargo watch -x test

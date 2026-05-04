@@ -2,22 +2,35 @@ use crate::error::Result;
 use crate::vault::Vault;
 use crate::cli::ExportFormat;
 
-pub fn execute(format: &ExportFormat, output: Option<&str>, tag: Option<&str>) -> Result<()> {
+pub fn execute(format: &ExportFormat, output: Option<&str>, project: Option<&str>, env: &str) -> Result<()> {
     let mut vault = Vault::open()?;
     vault.unlock()?;
 
-    let credentials = vault.list_credentials(tag)?;
+    // Find project
+    let project = match project {
+        Some(name) => vault.get_project_by_name(name)?,
+        None => {
+            let projects = vault.list_projects()?;
+            projects.into_iter().next()
+                .ok_or_else(|| crate::error::Error::ConfigError("No projects found".to_string()))?
+        }
+    };
+
+    // Find environment
+    let environments = vault.list_environments(project.id)?;
+    let environment = environments.into_iter().find(|e| e.name == env)
+        .ok_or_else(|| crate::error::Error::EnvironmentNotFound(env.to_string()))?;
 
     let content = match format {
-        ExportFormat::Env => export_env(&credentials, &vault)?,
-        ExportFormat::Json => export_json(&credentials, &vault)?,
-        ExportFormat::Csv => export_csv(&credentials, &vault)?,
+        ExportFormat::Env => vault.export_secrets_as_env(environment.id)?,
+        ExportFormat::Json => export_json(&vault, environment.id)?,
+        ExportFormat::Csv => export_csv(&vault, environment.id)?,
     };
 
     match output {
         Some(path) => {
             std::fs::write(path, &content)?;
-            println!("✓ Exported to {}", path);
+            println!("Exported to {}", path);
         }
         None => {
             println!("{}", content);
@@ -27,67 +40,40 @@ pub fn execute(format: &ExportFormat, output: Option<&str>, tag: Option<&str>) -
     Ok(())
 }
 
-fn export_env(credentials: &[&crate::models::Credential], vault: &Vault) -> Result<String> {
-    let mut lines = Vec::new();
-    lines.push("# GhostKey export".to_string());
-    lines.push(format!("# Exported at: {}", chrono::Utc::now().format("%Y-%m-%d %H:%M:%S")));
-    lines.push(String::new());
+fn export_json(vault: &Vault, env_id: uuid::Uuid) -> Result<String> {
+    let secrets = vault.list_secrets(env_id)?;
 
-    for cred in credentials {
-        let secret = vault.get_secret(&cred.name)?;
-        let name = cred.name.to_uppercase().replace('-', "_");
-        lines.push(format!("{}={}", name, secret));
-    }
-
-    Ok(lines.join("\n"))
-}
-
-fn export_json(credentials: &[&crate::models::Credential], vault: &Vault) -> Result<String> {
-    let mut items = Vec::new();
-
-    for cred in credentials {
-        let secret = vault.get_secret(&cred.name)?;
-        let item = serde_json::json!({
-            "name": cred.name,
-            "type": cred.credential_type.to_string(),
-            "username": cred.metadata.username,
-            "description": cred.metadata.description,
-            "tags": cred.metadata.tags,
-            "url": cred.metadata.url,
-            "secret": secret,
-            "created_at": cred.created_at.to_rfc3339(),
-            "updated_at": cred.updated_at.to_rfc3339(),
-        });
-        items.push(item);
-    }
+    let items: Vec<serde_json::Value> = secrets.iter().map(|s| {
+        serde_json::json!({
+            "key": s.key,
+            "description": s.description,
+            "created_at": s.created_at.to_rfc3339(),
+            "updated_at": s.updated_at.to_rfc3339(),
+        })
+    }).collect();
 
     let output = serde_json::json!({
-        "version": "1.0",
         "exported_at": chrono::Utc::now().to_rfc3339(),
-        "credentials": items,
+        "secrets": items,
     });
 
     Ok(serde_json::to_string_pretty(&output)?)
 }
 
-fn export_csv(credentials: &[&crate::models::Credential], vault: &Vault) -> Result<String> {
-    let mut lines = Vec::new();
-    lines.push("name,type,username,description,tags,url,secret".to_string());
+fn export_csv(vault: &Vault, env_id: uuid::Uuid) -> Result<String> {
+    let secrets = vault.list_secrets(env_id)?;
 
-    for cred in credentials {
-        let secret = vault.get_secret(&cred.name)?;
-        let tags = cred.metadata.tags.join(";");
-        let line = format!(
-            "{},{},{},{},{},{},{}",
-            escape_csv(&cred.name),
-            escape_csv(&cred.credential_type.to_string()),
-            escape_csv(cred.metadata.username.as_deref().unwrap_or("")),
-            escape_csv(cred.metadata.description.as_deref().unwrap_or("")),
-            escape_csv(&tags),
-            escape_csv(cred.metadata.url.as_deref().unwrap_or("")),
-            escape_csv(&secret),
-        );
-        lines.push(line);
+    let mut lines = vec!["key,description,created_at,updated_at".to_string()];
+
+    for s in &secrets {
+        let desc = s.description.as_deref().unwrap_or("");
+        lines.push(format!(
+            "{},{},{},{}",
+            escape_csv(&s.key),
+            escape_csv(desc),
+            s.created_at.to_rfc3339(),
+            s.updated_at.to_rfc3339(),
+        ));
     }
 
     Ok(lines.join("\n"))

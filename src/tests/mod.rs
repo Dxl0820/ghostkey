@@ -5,7 +5,6 @@ mod model_tests;
 #[cfg(test)]
 mod tests {
     use crate::vault::Vault;
-    use crate::models::CredentialType;
 
     #[test]
     fn test_vault_init() {
@@ -23,7 +22,10 @@ mod tests {
         let err = Error::VaultLocked;
         assert!(err.to_string().contains("locked"));
 
-        let err = Error::CredentialNotFound("test".to_string());
+        let err = Error::SecretNotFound("test".to_string());
         assert!(err.to_string().contains("test"));
+
+        let err = Error::ProjectNotFound("myproject".to_string());
+        assert!(err.to_string().contains("myproject"));
     }
 }
